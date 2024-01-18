@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 # Laboratorio de Hidrologia Florestal
 #
-# Raiza Salom?o Precinoto - raizaprecinoto@usp.br
+# Raiza Salomao Precinoto - raizaprecinoto@usp.br
 #
 # Janeiro de 2024
 #
@@ -89,11 +89,13 @@ write.table(tabela_exportar,"H:/Meu Drive/_Doc/Curso_R/exports/tabela_numeros2.t
 
 #library(MASS)
 
-iris
+iris  # dataset de largura e comprimento de sepalas e petalas de flores de tres especies do genero Iris 
 
-iris = iris
+iris = iris  # criando um objeto 
 str(iris)
 unique(iris$Species)
+
+#-----------LARGURA DAS SEPALAS---------------
 
 #Sepal width  - largura das sepalas difere entre especies?
 
@@ -116,8 +118,8 @@ box_sepal_largura <- ggplot(iris,aes(x = Species, y = Sepal.Width)) +
   ylab("Sepal Width (cm)")+
   theme_classic(base_size = 20);box_sepal_largura
 
+# Exportar a figura do boxplot criado acima no formato para publicacao
 ggsave("boxplot1.jpeg", box_sepal_largura, height = 7 , width = 9,dpi = 300)
-
 
 # Teste de normalidade (resultado p>0,05 --> dados normais)
 shapiro.test(iris$Sepal.Width)
@@ -129,9 +131,9 @@ ggplot(iris,aes(x=Sepal.Width))+
 #Criar modelo linear para ANOVA
 lm_sepal_largura <- lm(Sepal.Width~Species,data=iris)
 
-lm_sepal_largura <- aov(Sepal.Width~Species,data=iris)
+lm_sepal_largura <- aov(Sepal.Width~Species,data=iris) #funcao aov tambem cria modelo linear para ser usado em ANOVA
 
-# Testar a homogeneidade das variancias (p > 0,05 variancias iguais, pode usar ANOVA)
+# Testar a homogeneidade das variancias (teste de Levene: p > 0,05 variancias iguais, pode usar ANOVA)
 #install.packages("car") 
 library(car)
 leveneTest(lm_sepal_largura)
@@ -139,10 +141,10 @@ leveneTest(lm_sepal_largura)
 # Rodando a ANOVA para a comparacao da largura das sepalas
 anova(lm_sepal_largura)
 
-# p < 2,2*(10^(-16)) --> pelo menos 1 grupo é significativamente diferente
+# p < 2,2*(10^(-16)) --> p<0,05 --> pelo menos 1 grupo é significativamente diferente
 summary(lm_sepal_largura)
 
-TukeyHSD(lm_sepal_largura) # p adj < 0.05 --> os dois grupo sao diferentes
+TukeyHSD(lm_sepal_largura) # p adj < 0.05 --> os dois grupos sao diferentes
 
 #-----------COMPRIMENTO DAS SEPALAS---------------
 
@@ -172,7 +174,7 @@ shapiro.test(iris$Sepal.Length)
 ggplot(iris,aes(x=Sepal.Length))+
   geom_histogram()
 
-# Pressuposto da ANOVA não atendido, logo faremos o Kruskal-Wallis
+# Pressuposto da ANOVA não atendido, logo faremos o teste de Kruskal-Wallis
 # Kruskal-Wallis (p>0,05 nao existe diferenca entre as medias)
 kruskal.test(Sepal.Length~Species,data=iris)
 #  p-value  < 2.2e-16 --> Existe diferenca entre as medias de comprimento das sepalas
