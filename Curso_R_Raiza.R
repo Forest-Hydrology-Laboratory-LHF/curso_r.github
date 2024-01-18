@@ -1,11 +1,11 @@
 #-----------------------------------------------------------------------------
-# Laborat?rio de Hidrologia Florestal
+# Laboratorio de Hidrologia Florestal
 #
-# Ra?za Salom?o Precinoto - raizaprecinoto@usp.br
+# Raiza Salom?o Precinoto - raizaprecinoto@usp.br
 #
 # Janeiro de 2024
 #
-# Curso Pr?tico de R: de conceitos iniciais ? an?lise e visualiza??o de dados
+# Curso Pratico de R: de conceitos iniciais a analise e visualizacao de dados
 #-----------------------------------------------------------------------------
 
 citation()
@@ -32,7 +32,7 @@ p_load(tidyverse, cars, writexl)
 
 5+4;5*5;10-2;55/11  #ponto e virgula separa os comandos (todos rodam)
 
-#-------------------------------- Criando nossas pr?prias tabelas de dados manualmente
+#-------------------------------- Criando nossas proprias tabelas de dados manualmente
 
 1+2+3+4+5
 
@@ -44,7 +44,7 @@ resultado <- sum(a);resultado
 
 
 x <- c(4:6) # um vetor
-class(x) # n?meros inteiros
+class(x) # numeros inteiros
 str(x) #Structure: x --> um vetor de numeros inteiros
 x
 
@@ -85,7 +85,7 @@ write.table(tabela_exportar, "tabela_numeros.txt")
 # Alternativa 2: salvar diretamente no diretorio desejado
 write.table(tabela_exportar,"H:/Meu Drive/_Doc/Curso_R/exports/tabela_numeros2.txt", row.names = FALSE,sep = ";", dec = ",", quote = FALSE) 
 
-#-------------------------------- Analisando bases de dados j? embutidas no R
+#-------------------------------- Analisando bases de dados ja embutidas no R
 
 #library(MASS)
 
