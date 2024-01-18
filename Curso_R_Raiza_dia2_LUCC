@@ -1,0 +1,100 @@
+#-----------------------------------------------------------------------------
+# Laboratorio de Hidrologia Florestal
+#
+# Raiza Salomao Precinoto - raizaprecinoto@usp.br
+#
+# Janeiro de 2024
+#
+# Curso Pratico de R: de conceitos iniciais a analise e visualizacao de dados
+#
+# Parte 2 - Manipulacao de dados e elaboracao de graficos
+#-----------------------------------------------------------------------------
+
+pacman::p_load(tidyverse, writexl,plotly)
+
+#-----------------------LUCC - Land Use and Cover Change - dados da colecao 4.0 do Mapbiomas Amazonia
+
+# Avaliar mudancas ocorridas entre 1985-2018
+
+# Carregar a tabela contendo calculos das transicoes por bacia 
+all_t <- read.csv("C:/Users/LHF/Documents/Curso_R/Areas_transitions_1985_2018_c40.csv",header=TRUE)
+
+head(all_t) #6 primeiras linhas do dataframe
+tail(all_t) #6 últimas linhas do dataframe
+str(all_t)
+summary(all_t)
+unique(all_t$Category.)
+
+#----------------------- Manipular dados da forma tradicional (pacote base do R)
+
+#Nomear as mudancas da cobertura florestal
+#Category = 29 significa Regeneracao e assim por diante
+all_t["Category."][all_t["Category."] == 29] <- "Regrowth"
+all_t["Category."][all_t["Category."] == 9] <- "Remained Anthropic Area"
+all_t["Category."][all_t["Category."] == 27] <- "Remained Natural Area"
+all_t["Category."][all_t["Category."] == 7] <- "Deforestation"
+
+all_t <- all_t[,1:5] #dataframe "all_t" a partir de agora sera o "all_t" anterior, com todas as linhas e colunas de 1 a 5.
+
+names(all_t)
+
+#Alterar os nomes das colunas no cabecalho
+names(all_t) <- c("Bacia","Categoria","Area_em_celulas","Area_hectares","Area_m2")
+names(all_t)
+all_t$Categoria <- as.factor(all_t$Categoria) #transformando Categoria em fator
+
+#----------------------- Exportar a tabela arrumada
+
+getwd() #visualzar meu atual diretorio de trabalho
+setwd("C:/Users/LHF/Documents/Curso_R")
+write_xlsx(all_t,"tabela_cobertura_florestal.xlsx") #exportando a tabela no formato do Excel
+
+
+#----------------------- Manipulando os dados com dplyr/tidyverse - criar colunas de acordo com condicao de coluna existente
+
+# Criar coluna "Antes" e "Final" para se referir ao ano inicial e ao final, respectivamente.
+
+all_t_2 = all_t %>% #criando o objeto all_t_2 a partir do all_t
+  mutate( #Criar coluna para se referir a 1985 (coluna sera chamada "Antes")
+    Antes = if_else(Categoria == "Deforestation"|Categoria =="Remained Natural Area",
+                    "Forest","Anthropic_Area")) %>% # Coluna "Antes" sera preenchida assim: se a coluna "Categoria" contem as infos "Deforestation" ou "Remained Natural Area", essa coluna "Antes sera preenchida com "Forest"; caso a coluna "Categoria" tenha outra informacao, a coluna Antes sera preenchida com "Anthropic_Area".
+   mutate( #Criar coluna para se referir a 2018 (ano final da analise)
+    Final = if_else(Categoria == "Regrowth"|Categoria =="Remained Natural Area",
+                    "Forest", "Anthropic_Area" # Coluna "Depois", analogamente ao comando de cima, sera "Forest" caso a coluna "Categoria" se refira a regeneracao ou a uma area que permaneceu como area natural.
+      ))
+
+names(all_t_2)
+
+#----------------------- Manipulando os dados - Calcular a soma das areas de Floresta e Uso antropico no ano final da analise
+
+# Criar um dataframe que so me mostre a area final de floresta e uso antropico em cada bacia
+all_t_3 = all_t_2 %>% group_by(Bacia,Final) %>% 
+  summarise(Area_ha_2018 = sum(Area_hectares))
+
+#----------------------- Criar um grafico para visualizar a mudanca da cobertura entre 1985 e 2018
+graf1 <- all_t %>%
+  group_by(Bacia) %>%
+  mutate(total = sum(Area_hectares)) %>%     #fazendo um calculo somente para gerar o grafico, que vai funcionar somente neste comando
+  mutate(area_relativa = (Area_hectares/total)*100) %>%  #essa variavel "area_relativa" sera o eixo y, mas nao estara armazenada no dataframe equivalente
+  ggplot()+ aes(x = factor(Bacia),
+                y = round(area_relativa,digits = 2),
+                fill = Categoria)+
+  geom_col()+
+  #usando os codigos de cores em HTML
+  xlab("ID da Bacia")+
+  ylab("Area relativa (%)")+
+  labs(caption = "Curso Pratico de R: de conceitos iniciais a analise e visualizacao de dados")+
+  scale_fill_manual(values = c("#fa6672","#7fde7a","#e6c580","#428556"))+
+  scale_y_continuous("Area relativa (%)")+
+  theme_bw(base_size = 15)+
+  # annotate("text", label = "Curso de R", size = 2.5, 
+  #           x=10, y=75)+
+  facet_wrap(~Categoria);graf1
+
+# Salvar a figura no formato de publicacao
+ggsave("C:/Users/LHF/Documents/Curso_R/grafico1.jpeg", graf1,dpi = 300, height = 7, width = 15)
+  
+# Demonstracao rapida da existencia de graficos interativos 
+ggplotly(graf1) 
+
+#----------------------FIM DA PARTE 2 ----------------
