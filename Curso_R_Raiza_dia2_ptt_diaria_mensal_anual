@@ -1,0 +1,57 @@
+#-----------------------------------------------------------------------------
+# Laboratorio de Hidrologia Florestal
+#
+# Raiza Salomao Precinoto - raizaprecinoto@usp.br
+#
+# Janeiro de 2024
+#
+# Curso Pratico de R: de conceitos iniciais a analise e visualizacao de dados
+#
+# Parte 3 - Manipulacao de tabelas muito extensas
+#-----------------------------------------------------------------------------
+
+pacman::p_load(tidyverse,writexl)
+
+# Carregar tabela contendo dados diarios de precipitacao para um conjunto de 31 bacias
+ppt<-read.csv("C:/Users/LHF/Documents/Curso_R/Curso_R/df_precip2.csv",h=T,dec=".",sep = ",");head(ppt);summary(ppt)
+str(ppt)
+nrow(ppt)
+
+# ----------------------Criando a tabela com PPT ACUMULADA MENSAL para cada bacia
+ppt_mens <- ppt %>%
+  group_by(id,year,month) %>%
+  summarise(monthly_P = sum(precipitation_chirps)) 
+
+# ----------------------Calcular PTT acumulada anual para cada bacia
+ppt_anual <- ppt_mens %>%
+  group_by(id,year) %>%
+  summarise(yearly_P = sum(monthly_P)) 
+
+# ----------------------Eliminar as bacias (id) 11, 13, 17, 18, 20, 26 e 27
+
+# Primeira alternativa:
+ppt_anual_filtrada = dplyr::filter(ppt_anual, id != 11 &  # Traducao seria: filtre pra mim, a partir do dataframe ppt_anual, todos os dados resultantes de "id" diferente de 11 E id diferente de 13 e id diferente de (etc).
+                               id != 13 & id != 17 & 
+                               id != 18 & id != 20 & 
+                               id != 26 & id != 27) # filtramos os id (bacias) que sao diferentes de (!=) os ids das bacias que queremos excluir
+# Segunda alternativa:
+ppt_anual_filtrada = ppt_anual %>% filter(!id %in% c(11,13,17,18,20,26,27))  # Aqui a ideia eh dizer que nao queremos os ids listados
+# Do ingles, "in" significa "dentro", "contido". A ! significa negacao. 
+
+#Verifique o help sobre o operador %in% e mais exemplos de foruns na internet
+?"%in%"
+# Dica de texto para quem quiser aprofundar no %in% https://sparkbyexamples.com/r-programming/usage-of-in-operator-in-r/
+
+
+unique(ppt_anual_filtrada$id)
+
+
+# Exporte os resultados nos formatos de Excel e CSV:
+
+#setwd() #definir diretorio de trabalho para exportar as tabelas na pasta certa
+
+write_xlsx(ppt_anual_filtrada,"ppt_anual_filtrada.xlsx")
+
+write.csv(ppt_anual_filtrada,file = "ppt_anual_filtrada.csv", row.names = FALSE)
+
+#----------------------FIM DO CURSO ----------------
